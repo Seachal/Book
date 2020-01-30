@@ -35,9 +35,7 @@
 # json
 -keep class com.alibaba.fastjson.** { *; }
 -keepclassmembernames class * implements java.io.Serializable
--keepclassmembers public class * implements java.io.Serializable {
-    public *;
-}
+-keepclassmembers public class * implements java.io.Serializable { *; }
 -keepclassmembers class * implements java.io.Serializable {
     static final long serialVersionUID;
     private static final java.io.ObjectStreamField[] serialPersistentFields;

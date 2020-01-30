@@ -5,6 +5,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: 'aabresguard.gradle'
+apply from: 'resguard.gradle'
 apply from: 'bytex.gradle'
 //apply from: 'redex.gradle'
 
@@ -18,8 +19,8 @@ android {
         targetSdkVersion 29
         renderscriptTargetApi 17
         renderscriptSupportModeEnabled false
-        versionCode 23
-        versionName "1.6.3"
+        versionCode 24
+        versionName "1.6.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {

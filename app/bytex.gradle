@@ -134,6 +134,7 @@ shrinkR {
 //    enableInDebug false
 //    logLevel "DEBUG"
 //    shouldInline = [
-//            "com/zia/database/bean",
+//            "com/zia/database/bean/*",
+//            "com/zia/easybookmodule/bean/*"
 //    ]
 //}
