@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.zia.page.preview.custom.CustomThemeActivity">
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <LinearLayout
+                android:id="@+id/custom_text_config_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+            <View
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="6dp"
+                    android:background="@color/colorAccent" />
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="3dp"
+                    android:text="@string/text_color"
+                    android:textColor="@color/colorAccent" />
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/custom_text_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_text_config_layout"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="#000000" />
+
+        <Button
+                android:id="@+id/custom_choose_text_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/custom_text_split"
+                android:layout_alignParentEnd="true"
+                android:text="@string/choose"
+                android:textColor="@color/colorAccent" />
+
+        <View
+                android:id="@+id/custom_text_split"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/custom_text_color"
+                android:layout_margin="5dp"
+                android:background="@color/grey" />
+
+        <LinearLayout
+                android:id="@+id/custom_bg_config_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_text_split"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+            <View
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="6dp"
+                    android:background="@color/colorAccent" />
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="3dp"
+                    android:text="@string/bg_color"
+                    android:textColor="@color/colorAccent" />
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/custom_bg_color_des"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_bg_config_layout"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:maxWidth="250dp"
+                android:text="@string/custom_bg_color_des"
+                android:textSize="12sp" />
+
+        <TextView
+                android:id="@+id/custom_bg_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_bg_color_des"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="#000000" />
+
+        <Button
+                android:id="@+id/custom_choose_bg_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/custom_bg_split"
+                android:layout_alignParentEnd="true"
+                android:text="@string/choose"
+                android:textColor="@color/colorAccent" />
+
+        <View
+                android:id="@+id/custom_bg_split"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/custom_bg_color"
+                android:layout_margin="5dp"
+                android:background="@color/grey" />
+
+        <LinearLayout
+                android:id="@+id/custom_img_config_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_bg_split"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+            <View
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="6dp"
+                    android:background="@color/colorAccent" />
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="3dp"
+                    android:text="@string/bg_img"
+                    android:textColor="@color/colorAccent" />
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/custom_img_path"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_img_config_layout"
+                android:layout_margin="10dp"
+                android:gravity="start"
+                android:maxWidth="200dp"
+                android:text="@string/no_path" />
+
+        <Button
+                android:id="@+id/custom_choose_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/custom_img_split"
+                android:layout_alignParentEnd="true"
+                android:text="@string/choose"
+                android:textColor="@color/colorAccent" />
+
+        <View
+                android:id="@+id/custom_img_split"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/custom_img_path"
+                android:layout_margin="5dp"
+                android:background="@color/grey" />
+
+        <LinearLayout
+                android:id="@+id/custom_preview_config_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/custom_img_split"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+            <View
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="6dp"
+                    android:background="@color/colorAccent" />
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="3dp"
+                    android:text="@string/preview"
+                    android:textColor="@color/colorAccent" />
+        </LinearLayout>
+
+        <ImageView
+                android:id="@+id/custom_bg_preview"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_below="@id/custom_preview_config_layout"
+                android:scaleType="fitStart" />
+
+        <TextView
+                android:id="@+id/custom_text_preview"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_alignTop="@id/custom_bg_preview"
+                android:text="@string/preview_text_demo"
+                android:textColor="@color/textBlack"
+                android:textSize="22sp" />
+
+    </RelativeLayout>
+
+</ScrollView>

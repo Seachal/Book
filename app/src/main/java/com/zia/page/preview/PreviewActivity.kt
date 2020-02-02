@@ -2,8 +2,6 @@ package com.zia.page.preview
 
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
@@ -11,16 +9,21 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.widget.SeekBar
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.palette.graphics.Palette
 import com.zia.bookdownloader.R
 import com.zia.database.AppDatabase
 import com.zia.database.bean.NetBook
 import com.zia.page.base.BaseActivity
 import com.zia.page.book.BookActivity
+import com.zia.page.preview.custom.CustomThemeConst
 import com.zia.toastex.ToastEx
 import com.zia.util.*
 import com.zia.util.notchtools.NotchTools
@@ -40,13 +43,17 @@ import java.util.concurrent.TimeUnit
 
 class PreviewActivity : BaseActivity() {
 
-    private val textSizeSP = "textSize_new"
-    private val themeSP = "theme"
-    private val pageModeSP = "pageMode"
+    companion object {
+        const val textSizeSP = "textSize_new"
+        const val themeSP = "theme"
+        const val pageModeSP = "pageMode"
+    }
+
     private val theme_white = 0
     private val theme_dark = 1
     private val theme_green = 2
     private val theme_paper = 3
+    private val theme_custom = 4
 
     private var animMode: Int = 0
 
@@ -60,6 +67,8 @@ class PreviewActivity : BaseActivity() {
 
     private lateinit var selectedDrawable: Drawable
     private lateinit var unSelectedDrawable: Drawable
+
+    private var keepScreenOn = false
 
     val pool by lazy {
         val pool = ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, ArrayBlockingQueue<Runnable>(1))
@@ -393,17 +402,26 @@ class PreviewActivity : BaseActivity() {
 
         preview_theme_dark.setOnClickListener {
             defaultSharedPreferences.editor { putInt(themeSP, theme_dark) }
+            preview_theme_custom.background = unSelectedDrawable
             setTvTheme(theme_dark)
         }
 
         preview_theme_white.setOnClickListener {
             defaultSharedPreferences.editor { putInt(themeSP, theme_white) }
+            preview_theme_custom.background = unSelectedDrawable
             setTvTheme(theme_white)
         }
 
         preview_theme_green.setOnClickListener {
             defaultSharedPreferences.editor { putInt(themeSP, theme_green) }
+            preview_theme_custom.background = unSelectedDrawable
             setTvTheme(theme_green)
+        }
+
+        preview_theme_custom.setOnClickListener {
+            defaultSharedPreferences.editor { putInt(themeSP, theme_custom) }
+            preview_theme_custom.background = selectedDrawable
+            setTvTheme(theme_custom)
         }
 
 //        preview_theme_paper.setOnClickListener {
@@ -537,6 +555,18 @@ class PreviewActivity : BaseActivity() {
                     downloadDialog?.hide()
                 }.create()
             downloadDialog?.show()
+        }
+
+        preview_keep_screen_on.setOnClickListener {
+            if (keepScreenOn) {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                preview_keep_screen_on.background = unSelectedDrawable
+                keepScreenOn = false
+            } else {
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                preview_keep_screen_on.background = selectedDrawable
+                keepScreenOn = true
+            }
         }
     }
 
@@ -687,14 +717,15 @@ class PreviewActivity : BaseActivity() {
             noiseReg.getPixels(argb, 0, noiseReg.width, 0, 0, noiseReg.width, noiseReg.height)
             val alpha = 140 * 255 / 100
 
-            for (i in 0 until argb.size) {
+            for (i in argb.indices) {
                 argb[i] = (alpha.shl(24)) or (argb[i] and 0x00FFFFFF)
             }
             alphaNoiseReg =
                 Bitmap.createBitmap(argb, noiseReg.width, noiseReg.height, Bitmap.Config.ARGB_8888)
             noiseReg.recycle()
 
-            val shader = BitmapShader(alphaNoiseReg!!, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+            val shader =
+                BitmapShader(alphaNoiseReg!!, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
             val matrix = Matrix()
             shader.setLocalMatrix(matrix)
             val paint = Paint()
@@ -740,6 +771,42 @@ class PreviewActivity : BaseActivity() {
                 theme_paper -> {
                     readerView.pageBackground = Color.parseColor("#E5DECF")
                     readerView.textColor = resources.getColor(R.color.textBlack)
+                }
+                theme_custom -> {
+                    val textColor = defaultSharedPreferences.getInt(
+                        CustomThemeConst.custom_textColor_sp,
+                        0
+                    )
+                    val imgPath =
+                        defaultSharedPreferences.getString(CustomThemeConst.custom_bgImgPath_sp, "")
+                    val bgColor = defaultSharedPreferences.getInt(
+                        CustomThemeConst.custom_bgColor_sp,
+                        0
+                    )
+                    if (textColor == 0) {
+                        ToastUtil.onInfo("可以在主页-设置中自定义主题")
+                    }
+                    readerView.textColor = textColor
+                    readerView.pageLoader.batteryPaint.color = textColor
+                    readerView.pageLoader.tipPaint.color = textColor
+                    if (File(imgPath!!).exists()) {
+                        val bitmap = BitmapFactory.decodeStream(
+                            contentResolver.openInputStream(
+                                Uri.fromFile(FileUtil.customBgFile)
+                            )
+                        )
+                        val p = Palette.from(bitmap).generate().getLightVibrantColor(bgColor)
+                        Log.d("PreviewActivity", "color : $p  bgColor: $bgColor")
+                        if (p != 0) {
+                            readerView.pageBackground = p
+                        } else {
+                            readerView.pageBackground = bgColor
+                        }
+                        readerView.backGround = bitmap
+                    } else {
+                        readerView.pageBackground = bgColor
+                        readerView.backGround = null
+                    }
                 }
             }
 

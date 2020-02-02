@@ -1,10 +1,12 @@
 package com.zia.util
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
-import androidx.core.content.FileProvider
+import android.os.Environment
 import android.util.Log
+import androidx.core.content.FileProvider
 import com.zia.App
 import java.io.*
 
@@ -52,7 +54,26 @@ object FileUtil {
         return sb.toString()
     }
 
+    fun saveImage(bmp: Bitmap, path: String): String? {
+        val file = File(path)
+        try {
+            val fos = FileOutputStream(file)
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            fos.flush()
+            fos.close()
+            return file.path
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
     val fileDirPath: String = App.getContext().filesDir.path
     val rulePath: String = fileDirPath + File.separator + "easybookRules.json"
     val fontDirPath: String = fileDirPath + File.separator + "font"
+    val customBgFile = File(
+        App.getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+        "custom_background.png"
+    )
+    val customBgPath = customBgFile.path
 }

@@ -163,7 +163,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             )
         ) {
             EasyPermissions.requestPermissions(
-                this, "需要磁盘读写权限，系统设置写入权限（亮度调节）", 1, Manifest.permission.WRITE_EXTERNAL_STORAGE
+                this, "需要磁盘读写权限", 1, Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         }
     }

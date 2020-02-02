@@ -2,7 +2,7 @@ package com.zia;
 
 import android.app.Application;
 import android.content.Context;
-//import androidx.multidex.MultiDexApplication;
+
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -17,9 +17,14 @@ import com.zia.toastex.ToastEx;
 import com.zia.util.FileUtil;
 import com.zia.util.threadPool.DefaultExecutorSupplier;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
 
 /**
  * Created by zia on 2018/11/2.
@@ -84,6 +89,7 @@ public class App extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+//        MultiDex.install(this);
     }
 
     public static Context getContext() {

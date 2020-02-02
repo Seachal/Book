@@ -37,4 +37,17 @@
     <string name="custom_switch_all">全部开启</string>
     <string name="custom_siteManage">全部开/关</string>
     <string name="custom_url">http://zzzia.net/easybook.json</string>
+    <string name="font_default">默认</string>
+    <string name="keep_screen_on">屏幕常亮</string>
+    <string name="setting_read_config">阅读主题设置</string>
+    <string name="config">设置</string>
+    <string name="choose">选择</string>
+    <string name="text_color">文字颜色</string>
+    <string name="bg_color">背景颜色</string>
+    <string name="bg_img">图片背景</string>
+    <string name="preview_text_demo">　　“斗之力，三段！”\n　　望着测验魔石碑上面闪亮得甚至有些刺眼的五个大字，少年面无表情，唇角有着一抹自嘲，紧握的手掌，因为大力，而导致略微尖锐的指甲深深的刺进了掌心之中，带来一阵阵钻心的疼痛…</string>
+    <string name="no_path">未选择路径</string>
+    <string name="preview">预览</string>
+    <string name="custom">自定义</string>
+    <string name="custom_bg_color_des">可单独设置纯色背景\n设置图片背景时电池无法取色时的背景颜色</string>
 </resources>
