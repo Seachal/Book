@@ -6,7 +6,7 @@
 
 使用ViewModel+LifeCycle+Room+Paging等热门框架，集成了热修复功能
 
-***大小仅1.9M的小说阅读器***
+***大小仅1.7M的小说阅读器***
 
 * 实现了近20个小说站点的解析，几乎能搜索到所有热门小说。
 * 支持能过滤广告的在线自定义书源
@@ -16,6 +16,8 @@
 * 支持Android10，分屏，桌面快捷入口，音量翻页，字体背景设置等功能
 
 [Android下载](http://qiniu.zzzia.net/book_latest.apk)
+
+QQ群交流：29527219
 
 <img src="https://github.com/Zzzia/Book/blob/master/screenshot/1.png" width="280"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/2.png" width="280"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/3.png" width="280">
 

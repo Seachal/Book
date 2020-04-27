@@ -6,7 +6,6 @@ import android.content.Context;
 import com.facebook.stetho.Stetho;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.leakcanary.LeakCanary;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.zia.bookdownloader.BuildConfig;
 import com.zia.bookdownloader.R;
@@ -44,12 +43,6 @@ public class App extends Application {
         if (BuildConfig.DEBUG) {
             //        chrome://inspect
             Stetho.initializeWithDefaults(this);
-            if (LeakCanary.isInAnalyzerProcess(this)) {
-                // This process is dedicated to LeakCanary for heap analysis.
-                // You should not init your app in this process.
-                return;
-            }
-            LeakCanary.install(this);
         }
         //初始化线程池
         DefaultExecutorSupplier.getInstance();
