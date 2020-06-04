@@ -444,7 +444,7 @@ public class PageLoader {
         mPageView.postInvalidate();
     }
 
-    private int tipMarginHeight = ScreenUtils.dpToPx(App.getContext(), 3);
+    private int tipMarginHeight = ScreenUtils.dpToPx(App.getContext(), 8);
 
     public void drawBackground(Bitmap bitmap, boolean isUpdate) {
         Canvas canvas = new Canvas(bitmap);
@@ -577,8 +577,8 @@ public class PageLoader {
         canvas.drawRect(innerFrame, mBatteryPaint);
 
         //电极的制作
-        int polarTop = (outFrameTop + outFrameBottom) / 2;
-        Rect polar = new Rect(polarLeft, polarTop - tipMarginHeight, visibleRight, polarTop - tipMarginHeight + polarHeight);
+        int polarCenter = (outFrameTop + outFrameBottom) / 2;
+        Rect polar = new Rect(polarLeft, polarCenter - polarHeight / 2, visibleRight, polarCenter + polarHeight / 2);
 
         mBatteryPaint.setStyle(Paint.Style.FILL);
         canvas.drawRect(polar, mBatteryPaint);

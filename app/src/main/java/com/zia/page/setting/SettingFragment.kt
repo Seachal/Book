@@ -89,11 +89,21 @@ class SettingFragment : BaseFragment() {
         }
 
         setting_customSite.setOnClickListener {
+            setting_customSite_alert.visibility = View.INVISIBLE
             startActivity(Intent(context, CustomSiteActivity::class.java))
         }
 
         setting_customTheme.setOnClickListener {
             startActivity(Intent(context, CustomThemeActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!defaultSharedPreferences().getBoolean("custom_alert", false)) {
+            setting_customSite_alert.post {
+                setting_customSite_alert.visibility = View.VISIBLE
+            }
         }
     }
 

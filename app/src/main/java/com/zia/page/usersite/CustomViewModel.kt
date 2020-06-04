@@ -11,6 +11,8 @@ import com.zia.easybookmodule.site.CustomXpathSite
 import com.zia.page.base.BaseViewModel
 import com.zia.util.FileUtil
 import com.zia.util.MergeUtil
+import com.zia.util.defaultSharedPreferences
+import com.zia.util.editor
 import com.zia.util.threadPool.DefaultExecutorSupplier
 
 /**
@@ -32,6 +34,9 @@ class CustomViewModel : BaseViewModel() {
                 val json = NetUtil.getHtml(url, "utf-8")
                 val rulesTemp = getRulesFromJson(json)
                 toast.postValue("获取成功")
+                defaultSharedPreferences().editor {
+                    putBoolean("custom_alert", true)
+                }
                 netRules.postValue(rulesTemp)
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
@@ -68,9 +73,10 @@ class CustomViewModel : BaseViewModel() {
             rules.forEach {
                 sites.add(CustomXpathSite(it))
             }
-            val mergeList = MergeUtil.mergeListNoRepeat(SiteCollection.getInstance().allSites, sites) { site ->
-                site.siteName
-            }
+            val mergeList =
+                MergeUtil.mergeListNoRepeat(SiteCollection.getInstance().allSites, sites) { site ->
+                    site.siteName
+                }
             SiteCollection.getInstance().allSites.clear()
             SiteCollection.getInstance().addSites(mergeList)
             try {

@@ -33,7 +33,7 @@ android {
         }
 
 //        multiDexEnabled true
-        resConfigs "zh-rCN", "xxhdpi", "ldltr", "desk"
+        resConfigs "zh", "xxhdpi", "ldltr", "desk"
     }
 //    splits {
 //        // Configures multiple APKs based on screen density.
@@ -100,7 +100,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     //ui
     implementation 'com.jaeger.statusbarutil:library:1.5.1'

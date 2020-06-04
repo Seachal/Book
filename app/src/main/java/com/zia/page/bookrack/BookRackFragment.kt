@@ -143,7 +143,7 @@ class BookRackFragment : BaseFragment(), BookRackAdapter.OnBookRackSelect {
             startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            ToastUtil.onError("无法调用第三方阅读器")
+            ToastUtil.onError("没有找到阅读器，推荐使用多看/书旗等软件打开")
         }
     }
 

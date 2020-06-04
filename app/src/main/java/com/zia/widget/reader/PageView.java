@@ -174,8 +174,8 @@ public class PageView extends View {
         //重置图片的大小,由于w,h可能比原始的Bitmap更大，所以如果使用Bitmap.setWidth/Height()是会报错的。
         //所以最终还是创建Bitmap的方式。这种方式比较消耗性能，暂时没有找到更好的方法。
         if (mCenterRect == null) {
-            mCenterRect = new RectF(mViewWidth / 5, 0,
-                    mViewWidth * 4 / 5, mViewHeight);
+            mCenterRect = new RectF(mViewWidth / 5f, 0,
+                    mViewWidth * 4 / 5f, mViewHeight);
         }
         setPageMode(mPageMode);
         //重置页面加载器的页面
