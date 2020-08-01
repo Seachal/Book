@@ -422,6 +422,10 @@ public class PageLoader {
             mCurPage = getCurPage(page);
         }
 
+        if (mCurPage == null) {
+            return;
+        }
+
         mPageView.drawCurPage(false);
     }
 
@@ -434,6 +438,9 @@ public class PageLoader {
 
 
     void onDraw(Bitmap bitmap, boolean isUpdate) {
+        if (mCurPage == null) {
+            return;
+        }
         //如果是上下滑动
         drawBackground(mPageView.getBgBitmap(), isUpdate);
 
@@ -723,8 +730,13 @@ public class PageLoader {
                 }
                 mCurPageList = txtPages;
             }
-            //重新设置文章指针的位置
-            mCurPage = getCurPage(mCurPage.position);
+            if (mCurPage == null) {
+                mCurPage = getCurPage(0);
+                return;
+            }else{
+                //重新设置文章指针的位置
+                mCurPage = getCurPage(mCurPage.position);
+            }
         }
 
         mPageView.drawCurPage(false);
@@ -811,6 +823,7 @@ public class PageLoader {
     //翻阅下一页
     public boolean next() {
         if (!checkStatus()) return false;
+//        if (mCurPage == null) return false;
         //判断是否到最后一页了
         TxtPage nextPage = getNextPage();
 
@@ -920,7 +933,7 @@ public class PageLoader {
         if (mPageChangeListener != null) {
             mPageChangeListener.onPageChange(pos);
         }
-        if (mCurPageList.size() <= pos) {
+        if (mCurPageList == null || mCurPageList.size() <= pos) {
             return null;
         }
         return mCurPageList.get(pos);

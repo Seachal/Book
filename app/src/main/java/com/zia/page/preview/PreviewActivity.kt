@@ -95,11 +95,6 @@ class PreviewActivity : BaseActivity() {
 
         init()
 
-        setTextSize(defaultSharedPreferences.getInt(textSizeSP, defaultTextSize))
-
-        //设置背景、文字颜色、字体
-        setTvTheme(defaultSharedPreferences.getInt(themeSP, theme_white))
-
         viewModel = ViewModelProviders.of(this, PreviewModelFactory(bookName, siteName))
             .get(PreviewModel::class.java)
 
@@ -115,15 +110,27 @@ class PreviewActivity : BaseActivity() {
         setReaderView()
 
         //开始加载
-        load(usePageHistory = true)
+        load(usePageHistory = true) {
+            //适配刘海屏
+            fixWindow {
+                //设置背景、文字颜色、字体
+                setTvTheme(defaultSharedPreferences.getInt(themeSP, theme_white))
+            }
+        }
     }
 
     private fun init() {
-        bookName = intent.getStringExtra("bookName")
-        siteName = intent.getStringExtra("siteName")
+        val b = intent.getStringExtra("bookName")
+        val s = intent.getStringExtra("siteName")
+        if (b.isNullOrBlank() || s.isNullOrBlank()) {
+            ToastUtil.onError("bookName 或 siteName为空")
+            finish()
+        }
+        bookName = b!!
+        siteName = s!!
     }
 
-    private fun load(usePageHistory: Boolean = false) {
+    private fun load(usePageHistory: Boolean = false, onLoad:(()->Unit)? = null) {
         DefaultExecutorSupplier.getInstance().forBackgroundTasks().execute {
             animMode = defaultSharedPreferences.getInt(pageModeSP, PageView.PAGE_MODE_SIMULATION)
             useAnimMode(animMode)
@@ -143,13 +150,14 @@ class PreviewActivity : BaseActivity() {
             viewModel.loadSingleContent(fixSection)
             readerView.setPageAnimMode(animMode)
             readerView.post {
-                //适配刘海屏
-                fixWindow()
+                //设置字号
+                setTextSize(defaultSharedPreferences.getInt(textSizeSP, defaultTextSize))
                 if (usePageHistory) {
                     readerView.openSection(fixSection, viewModel.getReadProgress())
                 } else {
                     readerView.openSection(fixSection)
                 }
+                onLoad?.invoke()
             }
         }
     }
@@ -624,14 +632,18 @@ class PreviewActivity : BaseActivity() {
         preview_control_base_layout.visibility = View.VISIBLE
     }
 
-    private fun fixWindow() {
+    private fun fixWindow(hairSetCallback: (() -> Unit)) {
         NotchTools.getFullScreenTools().fullScreenUseStatus(this, object : OnNotchCallBack {
             override fun onNotchPropertyCallback(notchProperty: NotchProperty?) {
                 if (notchProperty != null && notchProperty.isNotch) {
+                    readerView.post {
+                        readerView.pageLoader.setHairHeight(notchProperty.marginTop)
+                        Log.d("PreviewActivity", "hireHeight = ${notchProperty.marginTop}")
+                        hairSetCallback.invoke()
+                    }
                     preview_control_top.post {
                         preview_control_top.setPadding(0, notchProperty.marginTop, 0, 0)
                     }
-                    readerView.pageLoader.setHairHeight(notchProperty.marginTop)
                 }
             }
 

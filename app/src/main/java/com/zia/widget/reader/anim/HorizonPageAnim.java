@@ -2,6 +2,7 @@ package com.zia.widget.reader.anim;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -38,6 +39,7 @@ public abstract class HorizonPageAnim extends PageAnimation{
     public HorizonPageAnim(int w, int h, int marginWidth, int marginHeight,
                            View view, OnPageChangeListener listener) {
         super(w, h, marginWidth, marginHeight, view,listener);
+        Log.d(TAG, "w:" + mViewWidth + " h:" + mViewHeight);
         //创建图片
         mCurBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Bitmap.Config.RGB_565);
         mNextBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Bitmap.Config.RGB_565);

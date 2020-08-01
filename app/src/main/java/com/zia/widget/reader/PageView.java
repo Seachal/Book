@@ -200,6 +200,7 @@ public class PageView extends View {
         mPageMode = pageMode;
         //视图未初始化的时候，禁止调用
         if (mViewWidth == 0 || mViewHeight == 0) return;
+        Log.d("PageView", "viewWidth:" + mViewWidth + " viewHeight:" + mViewHeight);
 
         switch (pageMode) {
             case PAGE_MODE_SIMULATION:
