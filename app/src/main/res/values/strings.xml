@@ -50,4 +50,5 @@
     <string name="preview">预览</string>
     <string name="custom">自定义</string>
     <string name="custom_bg_color_des">可单独设置纯色背景\n设置图片背景时电池无法取色时的背景颜色</string>
+    <string name="always_next">连续翻页</string>
 </resources>

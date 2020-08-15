@@ -64,7 +64,7 @@ class PreviewModel(private val bookName: String, private val siteName: String) :
         }
 
         override fun hasNextSection(currentSection: Int): Boolean {
-            val has = currentSection + 1 < size
+            val has = currentSection + 1 < size && currentSection >= 0
             if (has) {
                 //预加载
                 DefaultExecutorSupplier.getInstance().forBackgroundTasks().execute {

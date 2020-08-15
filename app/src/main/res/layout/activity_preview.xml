@@ -459,6 +459,20 @@
                     app:layout_constraintBottom_toBottomOf="@+id/preview_theme_white"
                     app:layout_constraintStart_toEndOf="@+id/preview_theme_green"
                     app:layout_constraintTop_toTopOf="@+id/preview_theme_white" />
+
+            <TextView
+                    android:id="@+id/preview_always_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/always_next"
+                    android:background="@drawable/bg_source_white"
+                    android:padding="5dp"
+                    android:textColor="@color/textWhite"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/preview_keep_screen_on"
+                    app:layout_constraintEnd_toStartOf="@+id/preview_keep_screen_on"
+                    app:layout_constraintTop_toTopOf="@+id/preview_keep_screen_on" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.zia.widget.SlideLayout>
 
@@ -494,5 +508,11 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="正在下载 第1章"
             tools:visibility="visible" />
+
+    <FrameLayout
+            android:id="@+id/preview_intercept_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

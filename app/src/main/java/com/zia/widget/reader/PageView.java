@@ -430,6 +430,7 @@ public class PageView extends View {
      * @param isUpdate
      */
     public void drawCurPage(boolean isUpdate) {
+        Log.d("PreviewActivity", "drawCurPage isUpdate=" + isUpdate);
         mPageLoader.onDraw(getNextPage(), isUpdate);
     }
 

@@ -27,12 +27,9 @@ import com.zia.page.preview.custom.CustomThemeConst
 import com.zia.toastex.ToastEx
 import com.zia.util.*
 import com.zia.util.notchtools.NotchTools
-import com.zia.util.notchtools.core.NotchProperty
-import com.zia.util.notchtools.core.OnNotchCallBack
 import com.zia.util.threadPool.DefaultExecutorSupplier
 import com.zia.widget.reader.OnPageChangeListener
-import com.zia.widget.reader.PageLoader.STATUS_FINISH
-import com.zia.widget.reader.PageLoader.STATUS_LOADING
+import com.zia.widget.reader.PageLoader.*
 import com.zia.widget.reader.PageView
 import kotlinx.android.synthetic.main.activity_preview.*
 import java.io.File
@@ -69,6 +66,7 @@ class PreviewActivity : BaseActivity() {
     private lateinit var unSelectedDrawable: Drawable
 
     private var keepScreenOn = false
+    private var alwaysNext = false
 
     val pool by lazy {
         val pool = ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, ArrayBlockingQueue<Runnable>(1))
@@ -109,13 +107,22 @@ class PreviewActivity : BaseActivity() {
         //设置阅读view
         setReaderView()
 
-        //开始加载
-        load(usePageHistory = true) {
-            //适配刘海屏
-            fixWindow {
-                //设置背景、文字颜色、字体
-                setTvTheme(defaultSharedPreferences.getInt(themeSP, theme_white))
+        // 初始化阅读器
+        initReaderView()
+    }
+
+    private fun initReaderView() {
+        val theme = defaultSharedPreferences.getInt(themeSP, theme_white)
+        readerView.post {
+            //设置背景、文字颜色、字体
+            setTvTheme(theme) {
+                //适配刘海屏
+                fixWindow {
+                    //开始加载
+                    load(usePageHistory = true)
+                }
             }
+
         }
     }
 
@@ -130,10 +137,9 @@ class PreviewActivity : BaseActivity() {
         siteName = s!!
     }
 
-    private fun load(usePageHistory: Boolean = false, onLoad:(()->Unit)? = null) {
+    private fun load(usePageHistory: Boolean = false, onLoad: (() -> Unit)? = null) {
         DefaultExecutorSupplier.getInstance().forBackgroundTasks().execute {
             animMode = defaultSharedPreferences.getInt(pageModeSP, PageView.PAGE_MODE_SIMULATION)
-            useAnimMode(animMode)
             val pos = viewModel.getBookMark()
             preview_progress.max = viewModel.readerAdapter.size - 1
             //防止并修复越界
@@ -146,17 +152,19 @@ class PreviewActivity : BaseActivity() {
             } else {
                 pos
             }
-            preview_progress.progress = fixSection
-            viewModel.loadSingleContent(fixSection)
-            readerView.setPageAnimMode(animMode)
-            readerView.post {
+            val cache = viewModel.loadSingleContent(fixSection)
+            val textSize = defaultSharedPreferences.getInt(textSizeSP, defaultTextSize)
+            val readProgress = viewModel.getReadProgress()
+            runOnUiThread {
+                preview_progress.progress = fixSection
                 //设置字号
-                setTextSize(defaultSharedPreferences.getInt(textSizeSP, defaultTextSize))
+                setTextSize(textSize)
                 if (usePageHistory) {
-                    readerView.openSection(fixSection, viewModel.getReadProgress())
+                    readerView.openSection(fixSection, readProgress)
                 } else {
                     readerView.openSection(fixSection)
                 }
+                useAnimMode(animMode, post = false)
                 onLoad?.invoke()
             }
         }
@@ -181,6 +189,9 @@ class PreviewActivity : BaseActivity() {
 
         selectedDrawable = resources.getDrawable(R.drawable.bg_source)
         unSelectedDrawable = resources.getDrawable(R.drawable.bg_source_white)
+
+        keepScreenOn = defaultSharedPreferences.getBoolean("keepScreenOn", false)
+        switchKeepScreenOn()
     }
 
     private fun initObserver() {
@@ -299,8 +310,11 @@ class PreviewActivity : BaseActivity() {
                     readerView.pageLoader.newAdapter(viewModel.newAdapter())
                     //加载
                     load(usePageHistory = false)
-
-                    preview_tv_sb_catalog.visibility = View.INVISIBLE
+                    runOnUiThread {
+                        preview_title.text = viewModel.getTitle(seekBar.progress)
+                        preview_progress.progress = seekBar.progress + 1
+                        preview_tv_sb_catalog.visibility = View.INVISIBLE
+                    }
                 }
             }
 
@@ -330,33 +344,35 @@ class PreviewActivity : BaseActivity() {
 
         })
 
-        readerView.setTouchListener(object : PageView.TouchListener {
-            override fun clickAny() {
-                if (!showControl) {
-                    preview_control_top.slideUpOut()
-                    preview_control_bottom.slideDownOut()
-                    hideSecondControl()
-                    showControl = !showControl
-                }
-            }
+        readerView.setTouchListener(readerViewClickListener)
+    }
 
-            override fun center() {
-                if (showControl) {
-                    preview_control_top.slideDownIn()
-                    preview_control_bottom.slideUpIn()
-                } else {
-                    preview_control_top.slideUpOut()
-                    preview_control_bottom.slideDownOut()
-                    hideSecondControl()
-                }
+    private val readerViewClickListener = object : PageView.TouchListener {
+        override fun clickAny() {
+            if (!showControl) {
+                preview_control_top.slideUpOut()
+                preview_control_bottom.slideDownOut()
+                hideSecondControl()
                 showControl = !showControl
             }
+        }
 
-            override fun cancel() {
-
+        override fun center() {
+            if (showControl) {
+                preview_control_top.slideDownIn()
+                preview_control_bottom.slideUpIn()
+            } else {
+                preview_control_top.slideUpOut()
+                preview_control_bottom.slideDownOut()
+                hideSecondControl()
             }
+            showControl = !showControl
+        }
 
-        })
+        override fun cancel() {
+
+        }
+
     }
 
     private fun setPanelClick() {
@@ -567,14 +583,50 @@ class PreviewActivity : BaseActivity() {
 
         preview_keep_screen_on.setOnClickListener {
             if (keepScreenOn) {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                preview_keep_screen_on.background = unSelectedDrawable
                 keepScreenOn = false
+                defaultSharedPreferences.editor {
+                    putBoolean("keepScreenOn", false)
+                }
             } else {
-                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                preview_keep_screen_on.background = selectedDrawable
                 keepScreenOn = true
+                defaultSharedPreferences.editor {
+                    putBoolean("keepScreenOn", true)
+                }
             }
+            switchKeepScreenOn()
+        }
+
+        // 连续翻页，全屏点击任意位置翻页
+        preview_always_next.setOnClickListener {
+            alwaysNext = true
+            preview_intercept_layout.setOnClickListener {
+                readerView.autoNextPage()
+            }
+            readerViewClickListener.center()
+            preview_intercept_layout.visibility = View.VISIBLE
+            ToastUtil.onInfo("已进入连续翻页模式，点击任意位置翻到下一页\n按返回键可退出连续翻页模式")
+        }
+    }
+
+    override fun onBackPressed() {
+        if (alwaysNext) {
+            alwaysNext = false
+            preview_intercept_layout.setOnClickListener(null)
+            preview_intercept_layout.visibility = View.GONE
+            ToastUtil.onInfo("已退出连续翻页模式")
+            return
+        }
+        super.onBackPressed()
+    }
+
+    // 屏幕常亮
+    private fun switchKeepScreenOn() {
+        if (keepScreenOn) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            preview_keep_screen_on.background = selectedDrawable
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            preview_keep_screen_on.background = unSelectedDrawable
         }
     }
 
@@ -592,14 +644,23 @@ class PreviewActivity : BaseActivity() {
         startActivity(intent)
     }
 
-    private fun useAnimMode(mode: Int) {
-        readerView.post {
+    private fun useAnimMode(mode: Int, post: Boolean = true, writePreference: Boolean = true) {
+        if (post) {
+            readerView.post {
+                getAnimModeTv(animMode)?.background = unSelectedDrawable
+                getAnimModeTv(mode)?.background = selectedDrawable
+                animMode = mode
+                readerView.setPageAnimMode(mode)
+            }
+        } else {
             getAnimModeTv(animMode)?.background = unSelectedDrawable
             getAnimModeTv(mode)?.background = selectedDrawable
             animMode = mode
             readerView.setPageAnimMode(mode)
         }
-        defaultSharedPreferences.editor { putInt(pageModeSP, mode) }
+        if (writePreference) {
+            defaultSharedPreferences.editor { putInt(pageModeSP, mode) }
+        }
     }
 
     private fun getAnimModeTv(mode: Int): View? {
@@ -633,36 +694,14 @@ class PreviewActivity : BaseActivity() {
     }
 
     private fun fixWindow(hairSetCallback: (() -> Unit)) {
-        NotchTools.getFullScreenTools().fullScreenUseStatus(this, object : OnNotchCallBack {
-            override fun onNotchPropertyCallback(notchProperty: NotchProperty?) {
-                if (notchProperty != null && notchProperty.isNotch) {
-                    readerView.post {
-                        readerView.pageLoader.setHairHeight(notchProperty.marginTop)
-                        Log.d("PreviewActivity", "hireHeight = ${notchProperty.marginTop}")
-                        hairSetCallback.invoke()
-                    }
-                    preview_control_top.post {
-                        preview_control_top.setPadding(0, notchProperty.marginTop, 0, 0)
-                    }
-                }
+        NotchTools.getFullScreenTools().fullScreenUseStatus(this) { notchProperty ->
+            if (notchProperty != null && notchProperty.isNotch) {
+                readerView.pageLoader.setHairHeight(notchProperty.marginTop)
+                Log.d("PreviewActivity", "hireHeight = ${notchProperty.marginTop}")
+                preview_control_top.setPadding(0, notchProperty.marginTop, 0, 0)
             }
-
-        })
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//            val decorView = window.decorView
-//            val displayCutout = decorView.rootWindowInsets?.displayCutout
-//            val rects = displayCutout?.boundingRects ?: return
-//
-//            if (rects.isNotEmpty()) {
-//                //是刘海屏
-//                Log.d("PreviewActivity", "刘海屏")
-//                preview_control_top.post {
-//                    preview_control_top.setPadding(0, displayCutout.safeInsetTop, 0, 0)
-//                }
-//                readerView.pageLoader.setHairHeight(displayCutout.safeInsetTop)
-//            }
-//
-//        }
+            hairSetCallback.invoke()
+        }
     }
 
     private fun setNavigationColor() {
@@ -754,86 +793,86 @@ class PreviewActivity : BaseActivity() {
         return bitmap
     }
 
-    private fun setTvTheme(themeId: Int) {
-        readerView.post {
-            when (themeId) {
-                theme_white -> {
-                    readerView.pageBackground = resources.getColor(R.color.preview_theme_white)
+    private fun setTvTheme(themeId: Int, callback: (() -> Unit)? = null) {
+        Log.d("PreviewActivity", "setTvTheme")
+        when (themeId) {
+            theme_white -> {
+                readerView.pageBackground = resources.getColor(R.color.preview_theme_white)
 //                readerView.pageBackground = Color.parseColor("#E5DECF")
-                    readerView.textColor = Color.argb(255, 91, 60, 30)
-                    //顺序不能变，先textcolor，后paintColor，否则会被覆盖
-                    readerView.pageLoader.batteryPaint.color = Color.argb(255, 173, 134, 97)
-                    readerView.pageLoader.tipPaint.color = Color.argb(255, 173, 134, 97)
-                    readerView.backGround = whiteBg
+                readerView.textColor = Color.argb(255, 91, 60, 30)
+                //顺序不能变，先textcolor，后paintColor，否则会被覆盖
+                readerView.pageLoader.batteryPaint.color = Color.argb(255, 173, 134, 97)
+                readerView.pageLoader.tipPaint.color = Color.argb(255, 173, 134, 97)
+                readerView.backGround = whiteBg
+            }
+            theme_dark -> {
+                readerView.pageBackground = resources.getColor(R.color.preview_theme_dark)
+                readerView.textColor = Color.argb(255, 77, 89, 106)
+                readerView.pageLoader.batteryPaint.color = Color.argb(255, 45, 53, 66)
+                readerView.pageLoader.tipPaint.color = Color.argb(255, 45, 53, 66)
+                readerView.backGround = null
+            }
+            theme_green -> {
+                readerView.pageBackground = resources.getColor(R.color.preview_theme_green)
+                readerView.textColor = Color.argb(255, 28, 67, 38)
+                readerView.pageLoader.batteryPaint.color = Color.argb(255, 162, 198, 155)
+                readerView.pageLoader.tipPaint.color = Color.argb(255, 162, 198, 155)
+                readerView.backGround = greenBg
+            }
+            theme_paper -> {
+                readerView.pageBackground = Color.parseColor("#E5DECF")
+                readerView.textColor = resources.getColor(R.color.textBlack)
+            }
+            theme_custom -> {
+                val textColor = defaultSharedPreferences.getInt(
+                    CustomThemeConst.custom_textColor_sp,
+                    0
+                )
+                val imgPath =
+                    defaultSharedPreferences.getString(CustomThemeConst.custom_bgImgPath_sp, "")
+                val bgColor = defaultSharedPreferences.getInt(
+                    CustomThemeConst.custom_bgColor_sp,
+                    0
+                )
+                if (textColor == 0) {
+                    ToastUtil.onInfo("可以在主页-设置中自定义主题")
                 }
-                theme_dark -> {
-                    readerView.pageBackground = resources.getColor(R.color.preview_theme_dark)
-                    readerView.textColor = Color.argb(255, 77, 89, 106)
-                    readerView.pageLoader.batteryPaint.color = Color.argb(255, 45, 53, 66)
-                    readerView.pageLoader.tipPaint.color = Color.argb(255, 45, 53, 66)
-                    readerView.backGround = null
-                }
-                theme_green -> {
-                    readerView.pageBackground = resources.getColor(R.color.preview_theme_green)
-                    readerView.textColor = Color.argb(255, 28, 67, 38)
-                    readerView.pageLoader.batteryPaint.color = Color.argb(255, 162, 198, 155)
-                    readerView.pageLoader.tipPaint.color = Color.argb(255, 162, 198, 155)
-                    readerView.backGround = greenBg
-                }
-                theme_paper -> {
-                    readerView.pageBackground = Color.parseColor("#E5DECF")
-                    readerView.textColor = resources.getColor(R.color.textBlack)
-                }
-                theme_custom -> {
-                    val textColor = defaultSharedPreferences.getInt(
-                        CustomThemeConst.custom_textColor_sp,
-                        0
-                    )
-                    val imgPath =
-                        defaultSharedPreferences.getString(CustomThemeConst.custom_bgImgPath_sp, "")
-                    val bgColor = defaultSharedPreferences.getInt(
-                        CustomThemeConst.custom_bgColor_sp,
-                        0
-                    )
-                    if (textColor == 0) {
-                        ToastUtil.onInfo("可以在主页-设置中自定义主题")
-                    }
-                    readerView.textColor = textColor
-                    readerView.pageLoader.batteryPaint.color = textColor
-                    readerView.pageLoader.tipPaint.color = textColor
-                    if (File(imgPath!!).exists()) {
-                        val bitmap = BitmapFactory.decodeStream(
-                            contentResolver.openInputStream(
-                                Uri.fromFile(FileUtil.customBgFile)
-                            )
+                readerView.textColor = textColor
+                readerView.pageLoader.batteryPaint.color = textColor
+                readerView.pageLoader.tipPaint.color = textColor
+                if (File(imgPath!!).exists()) {
+                    val bitmap = BitmapFactory.decodeStream(
+                        contentResolver.openInputStream(
+                            Uri.fromFile(FileUtil.customBgFile)
                         )
-                        val p = Palette.from(bitmap).generate().getLightVibrantColor(bgColor)
-                        Log.d("PreviewActivity", "color : $p  bgColor: $bgColor")
-                        if (p != 0) {
-                            readerView.pageBackground = p
-                        } else {
-                            readerView.pageBackground = bgColor
-                        }
-                        readerView.backGround = bitmap
+                    )
+                    val p = Palette.from(bitmap).generate().getLightVibrantColor(bgColor)
+                    Log.d("PreviewActivity", "color : $p  bgColor: $bgColor")
+                    if (p != 0) {
+                        readerView.pageBackground = p
                     } else {
                         readerView.pageBackground = bgColor
-                        readerView.backGround = null
                     }
+                    readerView.backGround = bitmap
+                } else {
+                    readerView.pageBackground = bgColor
+                    readerView.backGround = null
                 }
             }
-
-            val fontPath = defaultSharedPreferences.getString("fontPath", "")
-            if (fontPath != null && fontPath.isNotEmpty()) {
-                //我认为有可能用户清除缓存后，加载了不存在的文件会报错
-                try {
-                    readerView.pageLoader.textPaint.typeface = Typeface.createFromFile(fontPath)
-                } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
-                    ToastUtil.onError(e.message)
-                }
-            }
-            readerView.drawCurPage(false)
         }
+
+        val fontPath = defaultSharedPreferences.getString("fontPath", "")
+        if (fontPath != null && fontPath.isNotEmpty()) {
+            //我认为有可能用户清除缓存后，加载了不存在的文件会报错
+            try {
+                readerView.pageLoader.textPaint.typeface = Typeface.createFromFile(fontPath)
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                ToastUtil.onError(e.message)
+            }
+        }
+        readerView.drawCurPage(false)
+        callback?.invoke()
     }
 
     //音量键设置

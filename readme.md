@@ -19,14 +19,19 @@
 
 QQ群交流：29527219
 
-<img src="https://github.com/Zzzia/Book/blob/master/screenshot/1.png" width="280"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/2.png" width="280"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/3.png" width="280">
+<img src="https://github.com/Zzzia/Book/blob/master/screenshot/1.png" width="220"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/2.png" width="220"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/3.png" width="220">
 
-<img src="https://github.com/Zzzia/Book/blob/master/screenshot/4.png" width="280"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/5.png" width="280"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/6.png" width="280">
+<img src="https://github.com/Zzzia/Book/blob/master/screenshot/4.png" width="220"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/5.png" width="220"><img src="https://github.com/Zzzia/Book/blob/master/screenshot/6.png" width="220">
 
 
 
 
 ~~~
+v1.6.7
+增加连续翻页功能（全屏点击下一页）
+屏幕常亮功能重启App状态保持
+修复上版本新增的体验bug...
+
 v1.6.6
 修复了刘海屏下方阅读界面显示黑色问题
 修复了无网下崩溃的问题
